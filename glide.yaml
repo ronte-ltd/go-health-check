@@ -1,0 +1,6 @@
+package: github.com/ronte-ltd/go-health-checker
+import:
+- package: github.com/valyala/fasthttp
+  version: ^v20160617
+  repo: git@github.com:valyala/fasthttp.git
+- package: github.com/go-kit/kit/log

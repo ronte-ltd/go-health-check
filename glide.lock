@@ -1,0 +1,27 @@
+hash: 79c84bff02962d8a55a1e6c068515d12d26f89fae8f439ec4fa936728e7c5ca0
+updated: 2017-10-31T17:38:38.635274918+03:00
+imports:
+- name: github.com/go-kit/kit
+  version: e2b298466b32c7cd5579a9b9b07e968fc9d9452c
+  subpackages:
+  - log
+- name: github.com/go-logfmt/logfmt
+  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
+- name: github.com/go-stack/stack
+  version: 817915b46b97fd7bb80e8ab6b69f01a53ac3eebf
+- name: github.com/klauspost/compress
+  version: d3a829afd165e1e870f10e010000bfa9db586d17
+  subpackages:
+  - flate
+  - gzip
+  - zlib
+- name: github.com/klauspost/cpuid
+  version: ae7887de9fa5d2db4eaa8174a7eff2c1ac00f2da
+- name: github.com/kr/logfmt
+  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
+- name: github.com/valyala/fasthttp
+  version: d42167fd04f636e20b005e9934159e95454233c7
+  repo: git@github.com:valyala/fasthttp.git
+  subpackages:
+  - fasthttputil
+testImports: []
