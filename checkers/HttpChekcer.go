@@ -20,13 +20,8 @@ func NewHttpChecker(name, url string) HttpChecker {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 	return HttpChecker{
-		HealthChecker: HealthChecker{
-			Health: Health{
-				Name: name,
-			},
-			Checkers: make(map[string]Checker),
-		},
-		Url: url,
+		HealthChecker: NewHealthChecker(name),
+		Url:           url,
 	}
 }
 
@@ -43,21 +38,21 @@ func (c *HttpChecker) Check() (Health, error) {
 
 	err := client.Do(req, resp)
 
+	c.HealthChecker.Up()
 	if err != nil {
 		logger.Log("err", err)
-		c.HealthChecker.Status = DOWN
+		c.HealthChecker.Down()
 		c.HealthChecker.Msg = err.Error()
 		return c.HealthChecker.Health, err
 	}
 
 	if resp.StatusCode() != fasthttp.StatusOK {
 		logger.Log("httpStatus", resp.StatusCode())
-		c.HealthChecker.Status = DOWN
+		c.HealthChecker.Down()
 		c.HealthChecker.Msg = fmt.Sprintf("%s Status is %d", c.Name(), resp.StatusCode())
 		return c.HealthChecker.Health, err
 	}
 
-	c.HealthChecker.Status = UP
 	return c.HealthChecker.Health, nil
 }
 

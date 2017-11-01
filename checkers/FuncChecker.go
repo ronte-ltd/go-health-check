@@ -7,26 +7,14 @@ type FuncChecker struct {
 
 func SimpleChecker(name string) FuncChecker {
 	return FuncChecker{
-		HealthChecker: HealthChecker{
-			Health: Health{
-				Name:   name,
-				Status: DOWN,
-			},
-			Checkers: make(map[string]Checker),
-		},
+		HealthChecker: NewHealthChecker(name),
 	}
 }
 
 func NewFuncChecker(name string, check func() Health) FuncChecker {
 	return FuncChecker{
-		HealthChecker: HealthChecker{
-			Health: Health{
-				Name:   name,
-				Status: DOWN,
-			},
-			Checkers: make(map[string]Checker),
-		},
-		FuncCheck: check,
+		HealthChecker: NewHealthChecker(name),
+		FuncCheck:     check,
 	}
 }
 
@@ -42,7 +30,7 @@ func (fc *FuncChecker) Check() (Health, error) {
 	}
 	if fc.HealthChecker.SubHealth == nil {
 		fc.HealthChecker.SubHealth = make(map[string]Health, len(fc.HealthChecker.Checkers)+1)
-		fc.HealthChecker.Status = UP
+		fc.HealthChecker.Up()
 	}
 
 	for _, c := range fc.HealthChecker.Checkers {
@@ -67,7 +55,7 @@ func (fc *FuncChecker) Check() (Health, error) {
 
 func (fc *FuncChecker) checkStatus(h Health) {
 	if h.Status == DOWN {
-		fc.HealthChecker.Status = DOWN
+		fc.HealthChecker.Down()
 		fc.HealthChecker.Msg = h.Msg
 	}
 }
