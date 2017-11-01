@@ -2,6 +2,7 @@ package checkers
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
 )
