@@ -1,5 +1,5 @@
-hash: 79c84bff02962d8a55a1e6c068515d12d26f89fae8f439ec4fa936728e7c5ca0
-updated: 2017-10-31T17:38:38.635274918+03:00
+hash: 88a744e7671c7dceb302b088b62e04cca2bec520cfe14d840262042b6b7ed5e5
+updated: 2017-11-01T11:06:00.776853886+03:00
 imports:
 - name: github.com/go-kit/kit
   version: e2b298466b32c7cd5579a9b9b07e968fc9d9452c
@@ -24,4 +24,6 @@ imports:
   repo: git@github.com:valyala/fasthttp.git
   subpackages:
   - fasthttputil
+- name: gopkg.in/DATA-DOG/go-sqlmock.v1
+  version: d76b18b42f285b792bf985118980ce9eacea9d10
 testImports: []

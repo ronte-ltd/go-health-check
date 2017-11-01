@@ -4,3 +4,4 @@ import:
   version: ^v20160617
   repo: git@github.com:valyala/fasthttp.git
 - package: github.com/go-kit/kit/log
+- package: gopkg.in/DATA-DOG/go-sqlmock.v1
