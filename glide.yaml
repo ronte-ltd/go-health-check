@@ -5,3 +5,5 @@ import:
   repo: git@github.com:valyala/fasthttp.git
 - package: github.com/go-kit/kit/log
 - package: gopkg.in/DATA-DOG/go-sqlmock.v1
+- package: github.com/rainycape/memcache
+- package: github.com/stretchr/testify

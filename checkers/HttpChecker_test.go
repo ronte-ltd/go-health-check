@@ -31,5 +31,5 @@ func TestCompositeHealthUp(t *testing.T) {
 	if health.Status != UP {
 		t.Fatalf("Yandex cannot be rechable, because %s", health.Msg)
 	}
-	t.Log(fmt.Sprintf("Healthy: %+v", health))
+	t.Logf("Healthy: %+v", health)
 }

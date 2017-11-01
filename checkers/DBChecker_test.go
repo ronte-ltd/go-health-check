@@ -2,7 +2,6 @@ package checkers
 
 import (
 	"database/sql"
-	"fmt"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
 )
@@ -18,7 +17,7 @@ func IgnoreNewDBChecker(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unhealthy: %s", err.Error())
 	}
-	t.Log(fmt.Sprintf("Health: %+v", health))
+	t.Logf("Health: %+v", health)
 }
 
 func TestStatusUp(t *testing.T) {
@@ -35,5 +34,5 @@ func TestStatusUp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unhealthy: %s", err.Error())
 	}
-	t.Log(fmt.Sprintf("Health: %+v", health))
+	t.Logf("Health: %+v", health)
 }

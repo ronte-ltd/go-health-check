@@ -1,7 +1,6 @@
 package checkers
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -20,7 +19,7 @@ func TestWithoutSubHealthUpStatus(t *testing.T) {
 	if health.Status != UP {
 		t.Errorf("Status should be UP")
 	}
-	t.Log(fmt.Sprintf("Healthy: %+v", health))
+	t.Logf("Healthy: %+v", health)
 }
 
 func TestWithoutSubHealthDownStatus(t *testing.T) {
@@ -38,7 +37,7 @@ func TestWithoutSubHealthDownStatus(t *testing.T) {
 	if health.Status != DOWN {
 		t.Fatalf("Status should be DOWN")
 	}
-	t.Log(fmt.Sprintf("Healthy: %+v", health))
+	t.Logf("Healthy: %+v", health)
 }
 
 func TestTwoSubHealthUpStatus(t *testing.T) {
@@ -60,6 +59,6 @@ func TestTwoSubHealthUpStatus(t *testing.T) {
 	if health.Status != UP {
 		t.Fatalf("Status should be UP")
 	}
-	t.Log(fmt.Sprintf("Healthy: %+v", health))
+	t.Logf("Healthy: %+v", health)
 
 }
