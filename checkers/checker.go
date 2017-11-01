@@ -1,20 +1,26 @@
 package checkers
 
+import "github.com/go-kit/kit/log"
+
+var (
+	logger log.Logger
+)
+
 type Checker interface {
 	Check() (Health, error)
 	Name() string
 }
 
 type HealthChecker struct {
-	Health   `json:"health"`
-	Checkers map[string]Checker `json:"checkers"`
+	Health
+	Checkers map[string]Checker `json:"checkers,omitempty"`
 }
 
 type Health struct {
 	Name      string            `json:"name"`
 	Status    string            `json:"status"`
-	Msg       string            `json:"msg, omitempty"`
-	SubHealth map[string]Health `json:"health, omitempty"`
+	Msg       string            `json:"msg,omitempty"`
+	SubHealth map[string]Health `json:"subHealth,omitempty"`
 }
 
 const (
