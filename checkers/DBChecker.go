@@ -19,18 +19,22 @@ func NewDBChecker(name string, DB *sql.DB) DBChecker {
 	}
 }
 
-func (c *DBChecker) Check() (Health, error) {
+func (dbc *DBChecker) Check() (Health, error) {
 	var result string
-	if c.DB == nil {
+	if dbc.DB == nil {
 		err := errors.New("empty connection")
-		c.HealthChecker.Msg = err.Error()
-		return c.HealthChecker.Health, err
+		dbc.HealthChecker.Msg = err.Error()
+		return dbc.HealthChecker.Health, err
 	}
-	err := c.DB.QueryRow(c.QuerySQL).Scan(&result)
+	err := dbc.DB.QueryRow(dbc.QuerySQL).Scan(&result)
 	if err != nil {
-		c.HealthChecker.Msg = err.Error()
-		return c.HealthChecker.Health, err
+		dbc.HealthChecker.Msg = err.Error()
+		return dbc.HealthChecker.Health, err
 	}
-	c.HealthChecker.Up()
-	return c.HealthChecker.Health, nil
+	dbc.HealthChecker.Up()
+	return dbc.HealthChecker.Health, nil
+}
+
+func (dbc *DBChecker) Name() string {
+	return dbc.HealthChecker.Name
 }
