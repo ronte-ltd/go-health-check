@@ -8,3 +8,4 @@ import:
 - package: github.com/rainycape/memcache
 - package: github.com/stretchr/testify
 - package: github.com/buaazp/fasthttprouter
+- package: gopkg.in/mgo.v2

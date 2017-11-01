@@ -1,5 +1,5 @@
-hash: a9a4433eefbf433f9f88a0e5b6544f56d14960fad94690a43e4e9fba37a7f61e
-updated: 2017-11-01T15:26:58.15768984+03:00
+hash: 76e433ae9512ab98f87d8f0cbba9a1f095a22954d31dffba75896325c29cf975
+updated: 2017-11-01T15:50:01.421702903+03:00
 imports:
 - name: github.com/buaazp/fasthttprouter
   version: 29a27c70315770a2344e11847de85648512717e7
@@ -32,6 +32,13 @@ imports:
   - fasthttputil
 - name: gopkg.in/DATA-DOG/go-sqlmock.v1
   version: d76b18b42f285b792bf985118980ce9eacea9d10
+- name: gopkg.in/mgo.v2
+  version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
+  subpackages:
+  - bson
+  - internal/json
+  - internal/sasl
+  - internal/scram
 testImports:
 - name: github.com/lib/pq
   version: b609790bd85edf8e9ab7e0f8912750a786177bcf
