@@ -7,10 +7,6 @@ import (
 	"os"
 )
 
-var (
-	logger log.Logger
-)
-
 type HttpChecker struct {
 	HealthChecker HealthChecker
 	Url           string
@@ -19,6 +15,8 @@ type HttpChecker struct {
 func NewHttpChecker(name, url string) HttpChecker {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
+
+	logger.Log("msg", "Start HttpChecker")
 	return HttpChecker{
 		HealthChecker: NewHealthChecker(name),
 		Url:           url,
