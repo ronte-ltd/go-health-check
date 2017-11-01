@@ -1,3 +1,4 @@
+// Handler provide routing for Top-level checker
 package checkers
 
 import (
@@ -18,6 +19,7 @@ type Handler struct {
 	addr   string
 }
 
+// Create new handler with address
 func NewHandler(addr string) Handler {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
@@ -29,6 +31,8 @@ func NewHandler(addr string) Handler {
 	}
 }
 
+// Add new route for Top-level Checker and start Listen add
+// Note: call this in goroutine
 func (h *Handler) AddRoute(route string, checker Checker) {
 	logger.Log("msg", "Start listen")
 	router := fasthttprouter.New()
@@ -37,6 +41,7 @@ func (h *Handler) AddRoute(route string, checker Checker) {
 	logger.Log("Fatal", fasthttp.ListenAndServe(h.addr, router.Handler))
 }
 
+// Handler which check health
 func HealthCheck(ctx *fasthttp.RequestCtx) {
 	if !ctx.IsGet() {
 		return

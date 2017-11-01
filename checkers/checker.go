@@ -6,6 +6,7 @@ var (
 	logger log.Logger
 )
 
+// `interface` for provide common method health checking
 type Checker interface {
 	Check() (Health, error)
 	Name() string
@@ -28,6 +29,7 @@ const (
 	UP   = "UP"
 )
 
+// Create new HealthChecker with default parameters
 func NewHealthChecker(name string) HealthChecker {
 	return HealthChecker{
 		Health: Health{
@@ -38,6 +40,7 @@ func NewHealthChecker(name string) HealthChecker {
 	}
 }
 
+// Create Health with `DOWN` status by error
 func HealthError(err error) Health {
 	return Health{
 		Status: DOWN,
@@ -45,19 +48,23 @@ func HealthError(err error) Health {
 	}
 }
 
+// Toggle Status to `UP`
 func (hc *HealthChecker) Up() {
 	hc.Status = UP
 }
 
+// Toggle Status to `DOWN`
 func (hc *HealthChecker) Down() {
 	hc.Status = DOWN
 }
 
+// Toggle Status to `DOWN` by error
 func (hc *HealthChecker) DownError(err error) {
 	hc.Status = DOWN
 	hc.Msg = err.Error()
 }
 
+// Add SubHealth part for complex Health Checker
 func (hc *HealthChecker) AddSubHealth(name string, health Health) {
 	hc.SubHealth[name] = health
 }

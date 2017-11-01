@@ -20,7 +20,7 @@ func TestHealthStatusUp(t *testing.T) {
 func TestCompositeHealthUp(t *testing.T) {
 	yandex := NewHttpChecker("Yandex", "https://ya.ru")
 	habr := NewHttpChecker("Habr", "https://habrahabr.ru")
-	composite := SimpleChecker("Sites")
+	composite := CompositeChecker("Sites")
 	composite.AddChecker(&yandex)
 	composite.AddChecker(&habr)
 

@@ -1,3 +1,4 @@
+// Base checker, provide Composite Health Checker
 package checkers
 
 type FuncChecker struct {
@@ -5,12 +6,14 @@ type FuncChecker struct {
 	FuncCheck     func() Health
 }
 
-func SimpleChecker(name string) FuncChecker {
+// Create Composite Checker without self-check
+func CompositeChecker(name string) FuncChecker {
 	return FuncChecker{
 		HealthChecker: NewHealthChecker(name),
 	}
 }
 
+// Create Composite Checker with self-check func
 func NewFuncChecker(name string, check func() Health) FuncChecker {
 	return FuncChecker{
 		HealthChecker: NewHealthChecker(name),
@@ -62,6 +65,7 @@ func (fc *FuncChecker) checkDownStatus(h Health) {
 	}
 }
 
+// Add new Sub-checker to Composite Checker
 func (fc *FuncChecker) AddChecker(checker Checker) {
 	fc.HealthChecker.Checkers[checker.Name()] = checker
 }

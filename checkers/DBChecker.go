@@ -11,6 +11,7 @@ type DBChecker struct {
 	DB            *sql.DB
 }
 
+// Create DBChecker with name and DB resource
 func NewDBChecker(name string, DB *sql.DB) DBChecker {
 	return DBChecker{
 		HealthChecker: NewHealthChecker(name),

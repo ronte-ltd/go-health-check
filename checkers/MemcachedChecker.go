@@ -12,6 +12,7 @@ type MemcachedChecker struct {
 	McClient      *memcache.Client
 }
 
+// Create new MemcachedChecker by client of Memcached
 func NewMemcachedChecker(name string, client *memcache.Client) MemcachedChecker {
 	return MemcachedChecker{
 		HealthChecker: NewHealthChecker(name),
