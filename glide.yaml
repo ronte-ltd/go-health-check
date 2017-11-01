@@ -7,3 +7,4 @@ import:
 - package: gopkg.in/DATA-DOG/go-sqlmock.v1
 - package: github.com/rainycape/memcache
 - package: github.com/stretchr/testify
+- package: github.com/buaazp/fasthttprouter
