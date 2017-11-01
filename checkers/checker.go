@@ -32,10 +32,26 @@ func NewHealthChecker(name string) HealthChecker {
 	}
 }
 
+func HealthError(err error) Health {
+	return Health{
+		Status: DOWN,
+		Msg:    err.Error(),
+	}
+}
+
 func (hc *HealthChecker) Up() {
 	hc.Status = UP
 }
 
 func (hc *HealthChecker) Down() {
 	hc.Status = DOWN
+}
+
+func (hc *HealthChecker) DownError(err error) {
+	hc.Status = DOWN
+	hc.Msg = err.Error()
+}
+
+func (hc *HealthChecker) AddSubHealth(name string, health Health) {
+	hc.SubHealth[name] = health
 }
