@@ -7,30 +7,30 @@ import (
 	"os"
 )
 
-type HttpChecker struct {
+type HTTPChecker struct {
 	HealthChecker HealthChecker
-	Url           string
+	URL           string
 }
 
 // Create new HttpChecker by URL
-func NewHttpChecker(name, url string) HttpChecker {
+func NewHTTPChecker(name, url string) HTTPChecker {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 
 	logger.Log("msg", "Start HttpChecker")
-	return HttpChecker{
+	return HTTPChecker{
 		HealthChecker: NewHealthChecker(name),
-		Url:           url,
+		URL:           url,
 	}
 }
 
-func (c *HttpChecker) Name() string {
+func (c *HTTPChecker) Name() string {
 	return c.HealthChecker.Name
 }
 
-func (c *HttpChecker) Check() (Health, error) {
+func (c *HTTPChecker) Check() (Health, error) {
 	req := fasthttp.AcquireRequest()
-	req.SetRequestURI(c.Url)
+	req.SetRequestURI(c.URL)
 
 	resp := fasthttp.AcquireResponse()
 	client := &fasthttp.Client{}

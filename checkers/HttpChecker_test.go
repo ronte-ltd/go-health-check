@@ -6,7 +6,7 @@ import (
 )
 
 func TestHealthStatusUp(t *testing.T) {
-	ch := NewHttpChecker("Yandex", "https://ya.ru")
+	ch := NewHTTPChecker("Yandex", "https://ya.ru")
 	var health, err = ch.Check()
 	if err != nil {
 		t.Fatalf("Unhealthy, %s", err.Error())
@@ -18,9 +18,9 @@ func TestHealthStatusUp(t *testing.T) {
 }
 
 func TestCompositeHealthUp(t *testing.T) {
-	yandex := NewHttpChecker("Yandex", "https://ya.ru")
-	habr := NewHttpChecker("Habr", "https://habrahabr.ru")
-	composite := CompositeChecker("Sites")
+	yandex := NewHTTPChecker("Yandex", "https://ya.ru")
+	habr := NewHTTPChecker("Habr", "https://habrahabr.ru")
+	composite := NewCompositeChecker("Sites")
 	composite.AddChecker(&yandex)
 	composite.AddChecker(&habr)
 

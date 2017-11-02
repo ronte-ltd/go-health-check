@@ -24,6 +24,8 @@ type Health struct {
 	SubHealth map[string]Health `json:"subHealth,omitempty"`
 }
 
+// Down - Stuats Service is unhealthy
+// Up - Status Service is healthy
 const (
 	DOWN = "DOWN"
 	UP   = "UP"

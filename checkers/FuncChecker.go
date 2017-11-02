@@ -1,4 +1,4 @@
-// Base checker, provide Composite Health Checker
+// Package checkers provide health check for different service
 package checkers
 
 type FuncChecker struct {
@@ -6,8 +6,8 @@ type FuncChecker struct {
 	FuncCheck     func() Health
 }
 
-// Create Composite Checker without self-check
-func CompositeChecker(name string) FuncChecker {
+// NewCompositeChecker Create Composite Checker without self-check
+func NewCompositeChecker(name string) FuncChecker {
 	return FuncChecker{
 		HealthChecker: NewHealthChecker(name),
 	}

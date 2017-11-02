@@ -2,10 +2,11 @@ package checkers
 
 import (
 	"errors"
+
 	"github.com/rainycape/memcache"
 )
 
-const KEY_STATUS = "SelfHealthCheckStatus"
+const KeyStatus = "SelfHealthCheckStatus"
 
 type MemcachedChecker struct {
 	HealthChecker HealthChecker
@@ -21,13 +22,13 @@ func NewMemcachedChecker(name string, client *memcache.Client) MemcachedChecker 
 }
 
 func (mc *MemcachedChecker) Check() (Health, error) {
-	item := &memcache.Item{Key: KEY_STATUS, Value: []byte("OK")}
+	item := &memcache.Item{Key: KeyStatus, Value: []byte("OK")}
 	err := mc.McClient.Set(item)
 	if err != nil {
 		mc.HealthChecker.DownError(err)
 		return mc.HealthChecker.Health, err
 	}
-	res, err := mc.McClient.Get(KEY_STATUS)
+	res, err := mc.McClient.Get(KeyStatus)
 	if err != nil {
 		mc.HealthChecker.DownError(err)
 		return mc.HealthChecker.Health, err

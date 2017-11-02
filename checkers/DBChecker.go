@@ -5,13 +5,14 @@ import (
 	"errors"
 )
 
+// DBChecker sturct provide health check for SQL DB by `sql.DB`
 type DBChecker struct {
 	HealthChecker HealthChecker
 	QuerySQL      string
 	DB            *sql.DB
 }
 
-// Create DBChecker with name and DB resource
+// NewDBChecker return new instance DBChecker with name and DB resource args
 func NewDBChecker(name string, DB *sql.DB) DBChecker {
 	return DBChecker{
 		HealthChecker: NewHealthChecker(name),
@@ -20,6 +21,7 @@ func NewDBChecker(name string, DB *sql.DB) DBChecker {
 	}
 }
 
+// Check health DB service
 func (dbc *DBChecker) Check() (Health, error) {
 	var result string
 	if dbc.DB == nil {
@@ -36,6 +38,7 @@ func (dbc *DBChecker) Check() (Health, error) {
 	return dbc.HealthChecker.Health, nil
 }
 
+// Name return name this checker
 func (dbc *DBChecker) Name() string {
 	return dbc.HealthChecker.Name
 }
