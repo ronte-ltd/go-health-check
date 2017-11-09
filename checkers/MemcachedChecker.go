@@ -6,29 +6,31 @@ import (
 	"github.com/rainycape/memcache"
 )
 
-const KeyStatus = "SelfHealthCheckStatus"
+const keyStatus = "SelfHealthCheckStatus"
 
+//MemcachedChecker is ctruct provide Helath checker and client for Memcached
 type MemcachedChecker struct {
 	HealthChecker HealthChecker
 	McClient      *memcache.Client
 }
 
-// Create new MemcachedChecker by client of Memcached
-func NewMemcachedChecker(name string, client *memcache.Client) MemcachedChecker {
-	return MemcachedChecker{
+// NewMemcachedChecker return by client of Memcached
+func NewMemcachedChecker(name string, client *memcache.Client) *MemcachedChecker {
+	return &MemcachedChecker{
 		HealthChecker: NewHealthChecker(name),
 		McClient:      client,
 	}
 }
 
+//Check connect to memcached and put `keyStatus` to storage, before get `keyStatus` and compare their
 func (mc *MemcachedChecker) Check() (Health, error) {
-	item := &memcache.Item{Key: KeyStatus, Value: []byte("OK")}
+	item := &memcache.Item{Key: keyStatus, Value: []byte("OK")}
 	err := mc.McClient.Set(item)
 	if err != nil {
 		mc.HealthChecker.DownError(err)
 		return mc.HealthChecker.Health, err
 	}
-	res, err := mc.McClient.Get(KeyStatus)
+	res, err := mc.McClient.Get(keyStatus)
 	if err != nil {
 		mc.HealthChecker.DownError(err)
 		return mc.HealthChecker.Health, err
@@ -42,6 +44,7 @@ func (mc *MemcachedChecker) Check() (Health, error) {
 	return mc.HealthChecker.Health, nil
 }
 
+//Name return name current health check
 func (mc *MemcachedChecker) Name() string {
-	return mc.HealthChecker.Name
+	return mc.HealthChecker.Health.Name
 }

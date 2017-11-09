@@ -13,8 +13,8 @@ type DBChecker struct {
 }
 
 // NewDBChecker return new instance DBChecker with name and DB resource args
-func NewDBChecker(name string, DB *sql.DB) DBChecker {
-	return DBChecker{
+func NewDBChecker(name string, DB *sql.DB) *DBChecker {
+	return &DBChecker{
 		HealthChecker: NewHealthChecker(name),
 		QuerySQL:      "SELECT 1",
 		DB:            DB,
@@ -40,5 +40,5 @@ func (dbc *DBChecker) Check() (Health, error) {
 
 // Name return name this checker
 func (dbc *DBChecker) Name() string {
-	return dbc.HealthChecker.Name
+	return dbc.HealthChecker.Health.Name
 }

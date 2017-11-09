@@ -1,11 +1,6 @@
 package: github.com/ronte-ltd/go-health-checker
 import:
-- package: github.com/valyala/fasthttp
-  version: ^v20160617
-  repo: git@github.com:valyala/fasthttp.git
-- package: github.com/go-kit/kit/log
 - package: gopkg.in/DATA-DOG/go-sqlmock.v1
 - package: github.com/rainycape/memcache
 - package: github.com/stretchr/testify
-- package: github.com/buaazp/fasthttprouter
 - package: gopkg.in/mgo.v2

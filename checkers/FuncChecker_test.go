@@ -11,8 +11,9 @@ func TestWithoutSubHealthUpStatus(t *testing.T) {
 			Msg:    "All OK!",
 		}
 	}
-	fc := NewFuncChecker("FuncChecker", check)
-	var health, err = fc.Check()
+	ch := NewHealthChecker("Main")
+	ch.RegistryFunc("Up func", check)
+	var health, err = ch.Check()
 	if err != nil {
 		t.Fatalf("Should be healthy, %s", err.Error())
 	}
@@ -29,8 +30,9 @@ func TestWithoutSubHealthDownStatus(t *testing.T) {
 			Msg:    "Some bad...",
 		}
 	}
-	fc := NewFuncChecker("FuncChecker", check)
-	var health, err = fc.Check()
+	hc := NewHealthChecker("FuncChecker")
+	hc.RegistryFunc("Down", check)
+	var health, err = hc.Check()
 	if err != nil {
 		t.Fatalf("Should be healthy, %s", err.Error())
 	}
@@ -47,11 +49,9 @@ func TestTwoSubHealthUpStatus(t *testing.T) {
 			Msg:    "All ok",
 		}
 	}
-	fc := NewFuncChecker("FuncChecker", check)
-	fc1 := NewFuncChecker("FuncChecker1", check)
-	fc2 := NewFuncChecker("FuncChecker2", check)
-	fc.AddChecker(&fc1)
-	fc.AddChecker(&fc2)
+	fc := NewHealthChecker("Main")
+	fc.RegistryFunc("FuncChecker1", check)
+	fc.RegistryFunc("FuncChecker2", check)
 	var health, err = fc.Check()
 	if err != nil {
 		t.Fatalf("Should be healthy, %s", err.Error())

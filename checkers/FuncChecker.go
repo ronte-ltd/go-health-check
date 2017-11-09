@@ -1,6 +1,7 @@
 // Package checkers provide health check for different service
 package checkers
 
+// FuncChecker provide health check via `func()`
 type FuncChecker struct {
 	HealthChecker HealthChecker
 	FuncCheck     func() Health
@@ -13,22 +14,24 @@ func NewCompositeChecker(name string) FuncChecker {
 	}
 }
 
-// Create Composite Checker with self-check func
-func NewFuncChecker(name string, check func() Health) FuncChecker {
-	return FuncChecker{
+// NewFuncChecker return Composite Checker with self-check func
+func NewFuncChecker(name string, check func() Health) *FuncChecker {
+	return &FuncChecker{
 		HealthChecker: NewHealthChecker(name),
 		FuncCheck:     check,
 	}
 }
 
+//Name return name current Health check
 func (fc *FuncChecker) Name() string {
-	return fc.HealthChecker.Name
+	return fc.HealthChecker.Name()
 }
 
+//Check execute health check func and sub-func and return Health or error
 func (fc *FuncChecker) Check() (Health, error) {
 	if len(fc.HealthChecker.Checkers) == 0 {
-		var health = fc.FuncCheck()
-		health.Name = fc.HealthChecker.Name
+		health := fc.FuncCheck()
+		health.Name = fc.HealthChecker.Name()
 		return health, nil
 	}
 
@@ -52,8 +55,8 @@ func (fc *FuncChecker) Check() (Health, error) {
 
 func (fc *FuncChecker) selfCheck() {
 	if fc.FuncCheck != nil {
-		var h = fc.FuncCheck()
-		fc.HealthChecker.AddSubHealth(fc.HealthChecker.Name, h)
+		h := fc.FuncCheck()
+		fc.HealthChecker.AddSubHealth(fc.HealthChecker.Name(), h)
 		fc.checkDownStatus(h)
 	}
 }
@@ -65,7 +68,7 @@ func (fc *FuncChecker) checkDownStatus(h Health) {
 	}
 }
 
-// Add new Sub-checker to Composite Checker
+// AddChecker add new Sub-checker to Composite Checker
 func (fc *FuncChecker) AddChecker(checker Checker) {
 	fc.HealthChecker.Checkers[checker.Name()] = checker
 }

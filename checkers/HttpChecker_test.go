@@ -1,30 +1,39 @@
 package checkers
 
 import (
-	"fmt"
+	"context"
+	"os"
 	"testing"
 )
 
+func TestMain(m *testing.M) {
+	first := MockHTTPServer("22922")
+	second := MockHTTPServer("22923")
+	resp := m.Run()
+	first.Shutdown(context.Background())
+	second.Shutdown(context.Background())
+	os.Exit(resp)
+}
+
 func TestHealthStatusUp(t *testing.T) {
-	ch := NewHTTPChecker("Yandex", "https://ya.ru")
+	ch := NewHealthChecker("Main")
+	ch.RegistryURL("First", "http://127.0.0.1:22922/22922")
 	var health, err = ch.Check()
 	if err != nil {
 		t.Fatalf("Unhealthy, %s", err.Error())
 	}
 	if health.Status != UP {
-		t.Fatalf("Yandex cannot be rechable, because %s", health.Msg)
+		t.Fatalf("cannot be rechable, because %s", health.Msg)
 	}
-	t.Log(fmt.Sprintf("Healthy: %+v", health))
+	t.Logf("Healthy: %+v", health)
 }
 
 func TestCompositeHealthUp(t *testing.T) {
-	yandex := NewHTTPChecker("Yandex", "https://ya.ru")
-	habr := NewHTTPChecker("Habr", "https://habrahabr.ru")
-	composite := NewCompositeChecker("Sites")
-	composite.AddChecker(&yandex)
-	composite.AddChecker(&habr)
+	ch := NewHealthChecker("Main")
+	ch.RegistryURL("Yandex", "http://127.0.0.1:22922/22922")
+	ch.RegistryURL("Habr", "http://127.0.0.1:22923/22923")
 
-	var health, err = composite.Check()
+	var health, err = ch.Check()
 	if err != nil {
 		t.Fatalf("Unhealthy, %s", err.Error())
 	}

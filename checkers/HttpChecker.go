@@ -13,10 +13,6 @@ type HTTPChecker struct {
 
 // NewHTTPChecker return new HttpChecker by URL
 func NewHTTPChecker(name, url string) *HTTPChecker {
-	//logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
-	//logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
-
-	//logger.Log("msg", "Start HttpChecker")
 	return &HTTPChecker{
 		HealthChecker: NewHealthChecker(name),
 		URL:           url,
@@ -49,10 +45,4 @@ func (c *HTTPChecker) Check() (Health, error) {
 	}
 
 	return c.HealthChecker.Health, nil
-}
-
-func checkError(err error) {
-	if err != nil {
-		fmt.Println("Error: %s", err.Error())
-	}
 }

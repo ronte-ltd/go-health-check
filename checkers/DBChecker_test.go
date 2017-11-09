@@ -1,24 +1,24 @@
 package checkers
 
 import (
-	"database/sql"
-	_ "github.com/lib/pq"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
+
+	_ "github.com/lib/pq"
+	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
 func IgnoreNewDBChecker(t *testing.T) {
-	DB, err := sql.Open("postgres", "postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable")
-	defer DB.Close()
-	if err != nil {
-		t.Fatalf("Some error when open connection: %s", err.Error())
-	}
-	var dbChecker = NewDBChecker("DataBase", DB)
-	health, err := dbChecker.Check()
-	if err != nil {
-		t.Fatalf("Unhealthy: %s", err.Error())
-	}
-	t.Logf("Health: %+v", health)
+	//DB, err := sql.Open("postgres", "postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable")
+	//defer DB.Close()
+	//if err != nil {
+	//	t.Fatalf("Some error when open connection: %s", err.Error())
+	//}
+	//var dbChecker = NewDBChecker("DataBase", DB)
+	//health, err := dbChecker.Check()
+	//if err != nil {
+	//	t.Fatalf("Unhealthy: %s", err.Error())
+	//}
+	//t.Logf("Health: %+v", health)
 }
 
 func TestStatusUp(t *testing.T) {
@@ -30,8 +30,9 @@ func TestStatusUp(t *testing.T) {
 		sqlmock.NewRows([]string{"?"}).
 			AddRow("1"))
 
-	var dbChecker = NewDBChecker("DataBase", db)
-	health, err := dbChecker.Check()
+	ch := NewHealthChecker("Main")
+	ch.RegistryDB("MockDB", db)
+	health, err := ch.Check()
 	if err != nil {
 		t.Fatalf("Unhealthy: %s", err.Error())
 	}

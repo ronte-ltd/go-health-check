@@ -1,35 +1,10 @@
-hash: 76e433ae9512ab98f87d8f0cbba9a1f095a22954d31dffba75896325c29cf975
-updated: 2017-11-01T15:50:01.421702903+03:00
+hash: ac9491ff1a7fbcf8458983daa31426af47c9aaf4ff77223c8a870d0537f81f2d
+updated: 2017-11-08T20:19:02.815372994+03:00
 imports:
-- name: github.com/buaazp/fasthttprouter
-  version: 29a27c70315770a2344e11847de85648512717e7
-- name: github.com/go-kit/kit
-  version: e2b298466b32c7cd5579a9b9b07e968fc9d9452c
-  subpackages:
-  - log
-- name: github.com/go-logfmt/logfmt
-  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
-- name: github.com/go-stack/stack
-  version: 817915b46b97fd7bb80e8ab6b69f01a53ac3eebf
-- name: github.com/klauspost/compress
-  version: d3a829afd165e1e870f10e010000bfa9db586d17
-  subpackages:
-  - flate
-  - gzip
-  - zlib
-- name: github.com/klauspost/cpuid
-  version: ae7887de9fa5d2db4eaa8174a7eff2c1ac00f2da
-- name: github.com/kr/logfmt
-  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/rainycape/memcache
   version: 1031fa0ce2f20c1c0e1e1b51951d8ea02c84fa05
 - name: github.com/stretchr/testify
   version: 2aa2c176b9dab406a6970f6a55f513e8a8c8b18f
-- name: github.com/valyala/fasthttp
-  version: d42167fd04f636e20b005e9934159e95454233c7
-  repo: git@github.com:valyala/fasthttp.git
-  subpackages:
-  - fasthttputil
 - name: gopkg.in/DATA-DOG/go-sqlmock.v1
   version: d76b18b42f285b792bf985118980ce9eacea9d10
 - name: gopkg.in/mgo.v2
