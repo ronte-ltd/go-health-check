@@ -19,22 +19,14 @@ type Handler struct {
 // NewHandler return new handler with address
 func NewHandler(checker Checker, addr, route string) Handler {
 	handlerChecker = checker
-	newInnerHandler(route)
+	http.HandleFunc(route, defaultHandler)
 	return Handler{
 		Client: http.Client{},
 		Server: http.Server{Addr: addr},
 	}
 }
 
-func newInnerHandler(route string) http.Handler {
-	handler := new(innerHandler)
-	http.HandleFunc(route, handler.ServeHTTP)
-	return handler
-}
-
-type innerHandler func(http.ResponseWriter, *http.Request)
-
-func (i *innerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
