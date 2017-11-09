@@ -2,6 +2,7 @@ package checkers
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/rainycape/memcache"
 	mgo "gopkg.in/mgo.v2"
@@ -18,6 +19,7 @@ type HealthChecker struct {
 	Health
 	Checkers map[string]Checker `json:"checkers,omitempty"`
 	handler  Handler
+	logging  chan string
 }
 
 //Health struct provide Metainfo about current healthy and his sub-chekcer
@@ -31,14 +33,20 @@ type Health struct {
 // Down - Stuats Service is unhealthy
 // Up - Status Service is healthy
 const (
-	DOWN = "DOWN"
-	UP   = "UP"
+	DOWN            = "DOWN"
+	UP              = "UP"
+	addedNewChecker = "Added new checker '%s' type of %s checker"
 )
+
+func (h *Health) ToString() string {
+	return fmt.Sprintf("%+v", h)
+}
 
 //Check iterate through all subchecker, collect all health and return top-level Health or error
 func (hc *HealthChecker) Check() (Health, error) {
 	if len(hc.Checkers) == 0 {
 		hc.Msg = "len checkers is 0"
+		hc.PushMessage(hc.Health.ToString())
 		return hc.Health, nil
 	}
 
@@ -58,6 +66,7 @@ func (hc *HealthChecker) Check() (Health, error) {
 		hc.AddSubHealth(c.Name(), h)
 	}
 
+	hc.PushMessage(hc.Health.ToString())
 	return hc.Health, nil
 }
 
@@ -69,40 +78,47 @@ func (hc *HealthChecker) Name() string {
 //Registry added new checker as child for current health checker
 func (hc *HealthChecker) Registry(name string, chekcer Checker) {
 	hc.Checkers[name] = chekcer
+	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "composite"))
 }
 
 //RegistryURL added new HTTP checker as child by name
 func (hc *HealthChecker) RegistryURL(name, url string) {
 	hc.Checkers[name] = NewHTTPChecker(name, url)
+	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "HTTP"))
 }
 
 //RegistryFunc added new `func` checker as child by name
 func (hc *HealthChecker) RegistryFunc(name string, checkFunc func() Health) {
 	hc.Checkers[name] = NewFuncChecker(name, checkFunc)
+	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "`func`"))
 }
 
 //RegistryDB added new DB checker as child by name
 func (hc *HealthChecker) RegistryDB(name string, db *sql.DB) {
 	hc.Checkers[name] = NewDBChecker(name, db)
+	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "SQL DB"))
 }
 
 //RegistryMemcached added new memcached checker as child by name
 func (hc *HealthChecker) RegistryMemcached(name string, client *memcache.Client) {
 	hc.Checkers[name] = NewMemcachedChecker(name, client)
+	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "Memcached"))
 }
 
 //RegistryMongo added new Mongodb checker as child by name
 func (hc *HealthChecker) RegistryMongo(name string, session *mgo.Session) {
 	hc.Checkers[name] = NewMongoChecker(name, session)
+	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "Mongodb"))
 }
 
 //Handle bind address and added routing to this checker
 func (hc *HealthChecker) Handle(addr, route string) error {
 	hc.handler = NewHandler(hc, addr, route)
+	hc.PushMessage(fmt.Sprintf("Start '%s' on '%s' route '%s'", hc.Name(), addr, route))
 	return hc.handler.Server.ListenAndServe()
 }
 
-// NewHealthChecker return new instance HealthChecker with default parameters
+// NewHealthChecker return new instance HealthChecker with default parameters with disable logging channel
 func NewHealthChecker(name string) HealthChecker {
 	return HealthChecker{
 		Health: Health{
@@ -110,6 +126,17 @@ func NewHealthChecker(name string) HealthChecker {
 			Status: DOWN,
 		},
 		Checkers: make(map[string]Checker),
+	}
+}
+
+func NewHealthCheckerWithLogger(name string) HealthChecker {
+	return HealthChecker{
+		Health: Health{
+			Name:   name,
+			Status: DOWN,
+		},
+		Checkers: make(map[string]Checker),
+		logging:  make(chan string),
 	}
 }
 
@@ -140,4 +167,29 @@ func (hc *HealthChecker) DownError(err error) {
 // AddSubHealth added Health of the chekcer as children to current checker via name
 func (hc *HealthChecker) AddSubHealth(name string, health Health) {
 	hc.SubHealth[name] = health
+}
+
+// GetLogger return chan string that you can wrapped in your logger format
+func (hc *HealthChecker) GetLogger() <-chan string {
+	return hc.logging
+}
+
+// PushMessage added new message in the chan logger
+func (hc *HealthChecker) PushMessage(msg string) {
+	if hc.logging != nil {
+		hc.logging <- msg
+	}
+}
+
+func (hc *HealthChecker) PushHealth() {
+	if hc.logging != nil {
+		hc.logging <- hc.Health.ToString()
+	}
+}
+
+func (hc *HealthChecker) CheckError(err error) {
+	if err != nil {
+		msg := fmt.Sprintf("Was error: %s", err.Error())
+		hc.PushMessage(msg)
+	}
 }

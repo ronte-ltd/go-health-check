@@ -21,12 +21,15 @@ func NewMongoChecker(name string, sess *mgo.Session) *MongoChecker {
 //Check connect to mongodb and sent ping, after return health or error
 func (mc *MongoChecker) Check() (Health, error) {
 	err := mc.Session.Ping()
+	checkError(err)
 	if err != nil {
 		//logger.Log("lvl", "ERROR", "msg", err.Error())
 		mc.HealthChecker.DownError(err)
+		mc.HealthChecker.PushHealth()
 		return mc.HealthChecker.Health, err
 	}
 	mc.HealthChecker.Up()
+	mc.HealthChecker.PushHealth()
 	return mc.HealthChecker.Health, nil
 }
 

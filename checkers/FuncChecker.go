@@ -32,6 +32,7 @@ func (fc *FuncChecker) Check() (Health, error) {
 	if len(fc.HealthChecker.Checkers) == 0 {
 		health := fc.FuncCheck()
 		health.Name = fc.HealthChecker.Name()
+		fc.HealthChecker.PushHealth()
 		return health, nil
 	}
 
@@ -50,6 +51,7 @@ func (fc *FuncChecker) Check() (Health, error) {
 	}
 
 	fc.selfCheck()
+	fc.HealthChecker.PushHealth()
 	return fc.HealthChecker.Health, nil
 }
 

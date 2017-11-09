@@ -26,21 +26,26 @@ func NewMemcachedChecker(name string, client *memcache.Client) *MemcachedChecker
 func (mc *MemcachedChecker) Check() (Health, error) {
 	item := &memcache.Item{Key: keyStatus, Value: []byte("OK")}
 	err := mc.McClient.Set(item)
+	checkError(err)
 	if err != nil {
 		mc.HealthChecker.DownError(err)
+		mc.HealthChecker.PushHealth()
 		return mc.HealthChecker.Health, err
 	}
 	res, err := mc.McClient.Get(keyStatus)
 	if err != nil {
 		mc.HealthChecker.DownError(err)
+		mc.HealthChecker.PushHealth()
 		return mc.HealthChecker.Health, err
 	}
 	if string(res.Value) != "OK" {
 		err := errors.New("value in Cache will changed")
 		mc.HealthChecker.DownError(err)
+		mc.HealthChecker.PushHealth()
 		return mc.HealthChecker.Health, err
 	}
 	mc.HealthChecker.Up()
+	mc.HealthChecker.PushHealth()
 	return mc.HealthChecker.Health, nil
 }
 

@@ -28,12 +28,15 @@ func (c *HTTPChecker) Name() string {
 func (c *HTTPChecker) Check() (Health, error) {
 	resp, err := http.Get(c.URL)
 	checkError(err)
+	msg := fmt.Sprintf("response: %+v", resp)
+	c.HealthChecker.PushMessage(msg)
 
 	c.HealthChecker.Up()
 	if err != nil {
 		checkError(err)
 		c.HealthChecker.Down()
 		c.HealthChecker.Msg = err.Error()
+		c.HealthChecker.PushHealth()
 		return c.HealthChecker.Health, err
 	}
 
@@ -41,8 +44,10 @@ func (c *HTTPChecker) Check() (Health, error) {
 		fmt.Println("httpStatus", resp.StatusCode)
 		c.HealthChecker.Down()
 		c.HealthChecker.Msg = fmt.Sprintf("%s Status is %d", c.Name(), resp.StatusCode)
+		c.HealthChecker.PushHealth()
 		return c.HealthChecker.Health, nil
 	}
 
+	c.HealthChecker.PushHealth()
 	return c.HealthChecker.Health, nil
 }

@@ -42,6 +42,7 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Println("Error:", err.Error())
+		msg := fmt.Sprintf("Was error: %s", err.Error())
+		fmt.Println(msg)
 	}
 }

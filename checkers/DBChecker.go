@@ -27,14 +27,17 @@ func (dbc *DBChecker) Check() (Health, error) {
 	if dbc.DB == nil {
 		err := errors.New("empty connection")
 		dbc.HealthChecker.Msg = err.Error()
+		dbc.HealthChecker.PushHealth()
 		return dbc.HealthChecker.Health, err
 	}
 	err := dbc.DB.QueryRow(dbc.QuerySQL).Scan(&result)
 	if err != nil {
 		dbc.HealthChecker.Msg = err.Error()
+		dbc.HealthChecker.PushHealth()
 		return dbc.HealthChecker.Health, err
 	}
 	dbc.HealthChecker.Up()
+	dbc.HealthChecker.PushHealth()
 	return dbc.HealthChecker.Health, nil
 }
 
