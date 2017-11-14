@@ -3,10 +3,13 @@ package checkers
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 
 	"github.com/rainycape/memcache"
 	mgo "gopkg.in/mgo.v2"
 )
+
+const addedNewChecker = "Added new checker '%s' type of %s checker"
 
 // Checker provide common method health checking
 type Checker interface {
@@ -17,55 +20,43 @@ type Checker interface {
 //HealthChecker struct provide Health struct for current checker and arrya all sub-checker
 type HealthChecker struct {
 	Health
-	Checkers map[string]Checker `json:"checkers,omitempty"`
+	Checkers *Map `json:"checkers,omitempty"`
 	handler  Handler
 	logging  chan string
 }
 
-//Health struct provide Metainfo about current healthy and his sub-chekcer
-type Health struct {
-	Name      string            `json:"name"`
-	Status    string            `json:"status"`
-	Msg       string            `json:"msg,omitempty"`
-	SubHealth map[string]Health `json:"subHealth,omitempty"`
-}
-
-// Down - Stuats Service is unhealthy
-// Up - Status Service is healthy
-const (
-	DOWN            = "DOWN"
-	UP              = "UP"
-	addedNewChecker = "Added new checker '%s' type of %s checker"
-)
-
-func (h *Health) ToString() string {
-	return fmt.Sprintf("%+v", h)
-}
-
 //Check iterate through all subchecker, collect all health and return top-level Health or error
 func (hc *HealthChecker) Check() (Health, error) {
-	if len(hc.Checkers) == 0 {
+	if hc.Checkers.Len() == 0 {
 		hc.Msg = "len checkers is 0"
 		hc.PushMessage(hc.Health.ToString())
 		return hc.Health, nil
 	}
 
 	if hc.SubHealth == nil {
-		hc.SubHealth = make(map[string]Health, len(hc.Checkers))
+		hc.SubHealth = NewSubHealthMapWithLen(hc.Checkers.Len())
 	}
 	hc.Up()
 
-	for _, c := range hc.Checkers {
-		var h, err = c.Check()
+	wg := sync.WaitGroup{}
+	wg.Add(hc.Checkers.Len())
+
+	f := func(key string, value Checker) bool {
+		h, err := value.Check()
 		if err != nil {
 			h = HealthError(err)
 		}
 		if hc.Status == "UP" && h.Status == "DOWN" {
 			hc.Down()
 		}
-		hc.AddSubHealth(c.Name(), h)
+		hc.AddSubHealth(value.Name(), h)
+		wg.Done()
+		return true
 	}
 
+	go hc.Checkers.Range(f)
+
+	wg.Wait()
 	hc.PushMessage(hc.Health.ToString())
 	return hc.Health, nil
 }
@@ -76,38 +67,38 @@ func (hc *HealthChecker) Name() string {
 }
 
 //Registry added new checker as child for current health checker
-func (hc *HealthChecker) Registry(name string, chekcer Checker) {
-	hc.Checkers[name] = chekcer
+func (hc *HealthChecker) Registry(name string, checker Checker) {
+	hc.Checkers.Store(name, checker)
 	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "composite"))
 }
 
 //RegistryURL added new HTTP checker as child by name
 func (hc *HealthChecker) RegistryURL(name, url string) {
-	hc.Checkers[name] = NewHTTPChecker(name, url)
+	hc.Checkers.Store(name, NewHTTPChecker(name, url))
 	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "HTTP"))
 }
 
 //RegistryFunc added new `func` checker as child by name
 func (hc *HealthChecker) RegistryFunc(name string, checkFunc func() Health) {
-	hc.Checkers[name] = NewFuncChecker(name, checkFunc)
+	hc.Checkers.Store(name, NewFuncChecker(name, checkFunc))
 	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "`func`"))
 }
 
 //RegistryDB added new DB checker as child by name
 func (hc *HealthChecker) RegistryDB(name string, db *sql.DB) {
-	hc.Checkers[name] = NewDBChecker(name, db)
+	hc.Checkers.Store(name, NewDBChecker(name, db))
 	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "SQL DB"))
 }
 
 //RegistryMemcached added new memcached checker as child by name
 func (hc *HealthChecker) RegistryMemcached(name string, client *memcache.Client) {
-	hc.Checkers[name] = NewMemcachedChecker(name, client)
+	hc.Checkers.Store(name, NewMemcachedChecker(name, client))
 	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "Memcached"))
 }
 
 //RegistryMongo added new Mongodb checker as child by name
 func (hc *HealthChecker) RegistryMongo(name string, session *mgo.Session) {
-	hc.Checkers[name] = NewMongoChecker(name, session)
+	hc.Checkers.Store(name, NewMongoChecker(name, session))
 	hc.PushMessage(fmt.Sprintf(addedNewChecker, name, "Mongodb"))
 }
 
@@ -125,26 +116,19 @@ func NewHealthChecker(name string) HealthChecker {
 			Name:   name,
 			Status: DOWN,
 		},
-		Checkers: make(map[string]Checker),
+		Checkers: NewCheckersMap(),
 	}
 }
 
+// NewHealthCheckerWithLogger return new instance HealthChecker with default parameters with enable logging channel
 func NewHealthCheckerWithLogger(name string) HealthChecker {
 	return HealthChecker{
 		Health: Health{
 			Name:   name,
 			Status: DOWN,
 		},
-		Checkers: make(map[string]Checker),
+		Checkers: NewCheckersMap(),
 		logging:  make(chan string),
-	}
-}
-
-// HealthError create new instance `Health` with `DOWN` status by error
-func HealthError(err error) Health {
-	return Health{
-		Status: DOWN,
-		Msg:    err.Error(),
 	}
 }
 
@@ -166,7 +150,7 @@ func (hc *HealthChecker) DownError(err error) {
 
 // AddSubHealth added Health of the chekcer as children to current checker via name
 func (hc *HealthChecker) AddSubHealth(name string, health Health) {
-	hc.SubHealth[name] = health
+	hc.SubHealth.Store(name, health)
 }
 
 // GetLogger return chan string that you can wrapped in your logger format
@@ -181,12 +165,14 @@ func (hc *HealthChecker) PushMessage(msg string) {
 	}
 }
 
+// PushHealth send current health to logging channel
 func (hc *HealthChecker) PushHealth() {
 	if hc.logging != nil {
 		hc.logging <- hc.Health.ToString()
 	}
 }
 
+// CheckError send error to loggin channel
 func (hc *HealthChecker) CheckError(err error) {
 	if err != nil {
 		msg := fmt.Sprintf("Was error: %s", err.Error())

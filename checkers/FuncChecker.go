@@ -1,6 +1,8 @@
 // Package checkers provide health check for different service
 package checkers
 
+import "sync"
+
 // FuncChecker provide health check via `func()`
 type FuncChecker struct {
 	HealthChecker HealthChecker
@@ -29,7 +31,7 @@ func (fc *FuncChecker) Name() string {
 
 //Check execute health check func and sub-func and return Health or error
 func (fc *FuncChecker) Check() (Health, error) {
-	if len(fc.HealthChecker.Checkers) == 0 {
+	if fc.HealthChecker.Checkers.Len() == 0 {
 		health := fc.FuncCheck()
 		health.Name = fc.HealthChecker.Name()
 		fc.HealthChecker.PushHealth()
@@ -37,19 +39,27 @@ func (fc *FuncChecker) Check() (Health, error) {
 	}
 
 	if fc.HealthChecker.SubHealth == nil {
-		fc.HealthChecker.SubHealth = make(map[string]Health, len(fc.HealthChecker.Checkers)+1)
+		fc.HealthChecker.SubHealth = NewSubHealthMapWithLen(fc.HealthChecker.Checkers.Len() + 1)
 		fc.HealthChecker.Up()
 	}
 
-	for _, c := range fc.HealthChecker.Checkers {
-		var h, err = c.Check()
+	wg := sync.WaitGroup{}
+	wg.Add(fc.HealthChecker.Checkers.Len())
+
+	f := func(key string, value Checker) bool {
+
+		var h, err = value.Check()
 		if err != nil {
 			h = HealthError(err)
 		}
-		fc.HealthChecker.AddSubHealth(c.Name(), h)
+		fc.HealthChecker.AddSubHealth(value.Name(), h)
 		fc.checkDownStatus(h)
+		wg.Done()
+		return true
 	}
+	go fc.HealthChecker.Checkers.Range(f)
 
+	wg.Wait()
 	fc.selfCheck()
 	fc.HealthChecker.PushHealth()
 	return fc.HealthChecker.Health, nil
@@ -72,5 +82,5 @@ func (fc *FuncChecker) checkDownStatus(h Health) {
 
 // AddChecker add new Sub-checker to Composite Checker
 func (fc *FuncChecker) AddChecker(checker Checker) {
-	fc.HealthChecker.Checkers[checker.Name()] = checker
+	fc.HealthChecker.Checkers.Store(checker.Name(), checker)
 }
